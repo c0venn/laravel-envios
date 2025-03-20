@@ -1,20 +1,38 @@
 @extends('layouts.app')
 
-<main>
-    <div class="container mt-5">
+<main class="min-vh-100 d-flex align-items-center">
+    <div class="container">
         <div class="row justify-content-center">
             <div class="col-md-6">
-                <div class="card">
-                    <div class="card-header">
-                        <h3 class="text-center">Login</h3>
+                <div class="card shadow-lg border-0">
+                    <div class="card-header bg-primary text-white py-3">
+                        <h3 class="text-center mb-0 fw-bold">Amplifica</h3>
                     </div>
-                    <div class="card-body">
+                    <div class="card-body p-4">
                         <form id="loginForm">
-                            <div class="mb-3">
-                                <label for="email" class="form-label">Email address</label>
-                                <input type="email" class="form-control" id="email" required>
+                            <div class="mb-4">
+                                <label for="email" class="form-label fw-semibold">Usuario</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-user text-primary"></i>
+                                    </span>
+                                    <input type="email" class="form-control form-control-lg" id="email" required 
+                                           placeholder="Ingrese su email">
+                                </div>
                             </div>
-                            <button type="submit" class="btn btn-primary w-100">Login</button>
+                            <div class="mb-4">
+                                <label for="password" class="form-label fw-semibold">Contraseña</label>
+                                <div class="input-group">
+                                    <span class="input-group-text bg-light">
+                                        <i class="fas fa-lock text-primary"></i>
+                                    </span>
+                                    <input type="password" class="form-control form-control-lg" id="password" required
+                                           placeholder="Ingrese su contraseña">
+                                </div>
+                            </div>
+                            <button type="submit" class="btn btn-primary btn-lg w-100 mt-3 shadow-sm">
+                                <i class="fas fa-sign-in-alt me-2"> Ingresar</i>
+                            </button>
                         </form>
                     </div>
                 </div>
@@ -23,25 +41,19 @@
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const token = localStorage.getItem('jwt_token');
-            if (token) {
-                window.location.href = '/shopping-cart';
-            }
-        });
-
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             
             try {
                 const email = document.getElementById('email').value;
+                const password = document.getElementById('password').value;
                 const response = await fetch('/api/token', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: JSON.stringify({ email })
+                    body: JSON.stringify({ email, password })
                 });
 
                 if (!response.ok) {
@@ -50,10 +62,8 @@
 
                 const data = await response.json();
                 
-                // Store the JWT token
                 localStorage.setItem('jwt_token', data.token);
                 
-                // Redirect to shopping cart page
                 window.location.href = '/shopping-cart';
                 
             } catch (error) {

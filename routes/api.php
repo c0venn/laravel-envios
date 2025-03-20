@@ -5,9 +5,9 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ApiController;
 
 
-// Route::get('/user', function (Request $request) {
-//     return $request->user();
-// })->middleware('auth:sanctum');
-
 Route::post('token', [ApiController::class, 'token']);
-Route::post('order', [ApiController::class, 'submitOrder']);
+Route::get('regions', [ApiController::class, 'getRegions']);
+Route::post('getRate', [ApiController::class, 'getRate']);
+Route::middleware('jwt')->group(function () {
+    Route::post('order', [ApiController::class, 'submitOrder']);
+});

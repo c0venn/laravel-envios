@@ -4,48 +4,80 @@ namespace App\Http\Controllers;
 
 use Illuminate\Routing\Controller;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
+use App\Services\AmplificaService;
+
+
 class ApiController extends Controller
 {
-    private $url = 'https://postulaciones.amplifica.io/';
-    private $token = null;
+    protected $amplificaService;
+
+    public function __construct(AmplificaService $amplificaService)
+    {
+        $this->amplificaService = $amplificaService;
+    }
 
     public function token(Request $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-        ]);
-        Log::info($request->email);
-        $response = Http::withOptions(['verify' => false])->post($this->url . 'auth', [
-            'username' => $request->email,
-            'password' => '12345'
-        ]);
-        Log::info('respuesta:',[$response]);
+        try {
+            $validated = $request->validate([
+                'email' => 'required|email',
+                'password' => 'required|string'
+            ]);
 
-        if ($response->successful()) {
-            $this->token = $response->json()['token'];
-            return response()->json(['token' => $this->token]);
+            $token = $this->amplificaService->getToken($validated['email'], $validated['password']);
+            return response()->json(['token' => $token]);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
+    }
 
-        return response()->json(['error' => 'Error de autenticación'], 401);
+    public function getRegions()
+    {
+        try {
+            $regions = $this->amplificaService->getRegions();
+            return response()->json($regions);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
+    }
+
+    public function getRate(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'comuna' => 'required|string',
+                'products' => 'required|array',
+                'products.*.weight' => 'required|numeric',
+                'products.*.quantity' => 'required|integer|min:1'
+            ]);
+
+            $rate = $this->amplificaService->getRate(
+                $validated['comuna'],
+                $validated['products']
+            );
+
+            return response()->json($rate);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
+        }
     }
 
     public function submitOrder(Request $request)
     {
-        if (!$this->token) {
-            return response()->json(['error' => 'No authentication token available'], 401);
-        }
-
-        $response = Http::withToken($this->token)
-            ->post($this->url . 'order', [
-                'items' => $request->items
+        try {
+            $validated = $request->validate([
+                'products' => 'required|array',
+                'products.*.id' => 'required|exists:products,id',
+                'products.*.quantity' => 'required|integer|min:1',
+                'shipping_address' => 'required|array',
+                'shipping_address.comuna' => 'required|string',
+                'shipping_address.address' => 'required|string'
             ]);
 
-        if ($response->successful()) {
-            return response()->json($response->json());
+            $order = $this->amplificaService->submitOrder($validated);
+            return response()->json($order);
+        } catch (\Exception $e) {
+            return response()->json(['error' => $e->getMessage()], 500);
         }
-
-        return response()->json(['error' => 'Error submitting order'], $response->status());
     }
 }
