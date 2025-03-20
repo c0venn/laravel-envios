@@ -4,7 +4,6 @@ const API_CONFIG = {
         auth: 'auth',
         regions: 'regionalConfig',
         rate: 'getRate',
-        order: 'order'
     }
 };
 

@@ -46,9 +46,30 @@
                             <strong>Precio total:</strong>
                             <strong id="total-price">$0.00</strong>
                         </div>
-                        <button class="btn btn-primary m-1 w-100" onclick="cartService.submitOrder()">
+                        <button class="btn btn-primary m-1 w-100" data-bs-toggle="modal" data-bs-target="#orderModal" onclick="cartService.submitOrder()">
                             Enviar pedido
                         </button>
+
+                        <div class="modal fade" id="orderModal" tabindex="-1" aria-labelledby="orderModalLabel" aria-hidden="true">
+                            <div class="modal-dialog">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="orderModalLabel">Detalles del Pedido</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close" onclick="cartService.closeModal()"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <p><strong>Número de Orden:</strong> <span id="modalOrderNumber"></span></p>
+                                        <p><strong>Total de Productos:</strong> <span id="modalProducts"></span></p>
+                                        <p><strong>Región:</strong> <span id="modalRegion"></span></p>
+                                        <p><strong>Estado:</strong> <span id="modalStatus"></span></p>
+                                        <p><strong>Mensaje:</strong> <span id="modalMessage"></span></p>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" aria-label="Close" onclick="cartService.closeModal()">Cerrar</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                         <button class="btn btn-danger m-1 w-100" onclick="window.location.href='/logout'">
                             Salir
                         </button>

@@ -148,33 +148,32 @@ class CartService {
     async submitOrder() {
         const region = document.getElementById('region').value;
         if (!region) {
-            alert('Please select a region');
+            alert('Por favor selecciona una región');
             return;
         }
 
-        try {
-            const orderData = {
-                items: this.products.map(product => ({
-                    id: product.id,
-                    quantity: product.quantity,
-                    weight: product.weight
-                })),
-                totalWeight: calculateTotals(this.products).weight / 1000,
-                shippingRate: this.shippingRate,
-                region: region
-            };
+        const totals = calculateTotals(this.products);
+        const modalData = {
+            orderNumber: 'ORD-' + Date.now(),
+            products: totals.items,
+            region: region,
+            status: 'Pendiente',
+            message: 'Tu pedido ha sido recibido y está siendo procesado.'
+        };
 
-            await apiRequest('order', {
-                method: 'POST',
-                body: JSON.stringify(orderData)
-            });
+        document.getElementById('modalOrderNumber').textContent = modalData.orderNumber;
+        document.getElementById('modalProducts').textContent = modalData.products;
+        document.getElementById('modalRegion').textContent = modalData.region;
+        document.getElementById('modalStatus').textContent = modalData.status;
+        document.getElementById('modalMessage').textContent = modalData.message;
 
-            alert('Order submitted successfully!');
-            this.products.forEach(product => product.quantity = 0);
-            this.renderCart();
-        } catch (error) {
-            alert('Error submitting order: ' + error.message);
-        }
+        const orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
+        orderModal.show();
+    }
+    async closeModal() {
+        const orderModal = new bootstrap.Modal(document.getElementById('orderModal'));
+        document.getElementsByClassName('modal-backdrop fade show')[0].remove();
+        orderModal.hide();
     }
 }
 

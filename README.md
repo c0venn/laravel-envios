@@ -19,7 +19,9 @@ $git clone https://github.com/c0venn/laravel-envios.git
 ### 2. Instalar Dependencias
 
 $ cd /proyecto-envios
+
 $composer install
+
 $npm install
 
 ### 3. Configuración del Entorno
@@ -30,6 +32,7 @@ Luego, ejecuta las migraciones para crear las tablas de la base de datos
 ### 4. Ejecutar la Aplicación
 
 Abre 2 terminales y ejecuta dentro de la carpeta raíz del proyecto los siguientes comandos:
+
 Laravel/proyecto-envios>$ npm run dev 
 <!-- FrontEnd -->
 Laravel/proyecto-envios>$ php artisan serve 

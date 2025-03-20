@@ -61,23 +61,4 @@ class ApiController extends Controller
             return response()->json(['error' => $e->getMessage()], 500);
         }
     }
-
-    public function submitOrder(Request $request)
-    {
-        try {
-            $validated = $request->validate([
-                'products' => 'required|array',
-                'products.*.id' => 'required|exists:products,id',
-                'products.*.quantity' => 'required|integer|min:1',
-                'shipping_address' => 'required|array',
-                'shipping_address.comuna' => 'required|string',
-                'shipping_address.address' => 'required|string'
-            ]);
-
-            $order = $this->amplificaService->submitOrder($validated);
-            return response()->json($order);
-        } catch (\Exception $e) {
-            return response()->json(['error' => $e->getMessage()], 500);
-        }
-    }
 }

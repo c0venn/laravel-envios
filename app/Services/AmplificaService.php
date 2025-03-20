@@ -15,12 +15,6 @@ class AmplificaService
     private $username;
     private $password;
 
-    public function __construct()
-    {
-        $this->username = config('services.amplifica.email');
-        $this->password = config('services.amplifica.password');
-    }
-
     public function getToken(string $username = null, string $password = null): string
     {
         if ($username && $password) {
@@ -53,9 +47,11 @@ class AmplificaService
         $response = Http::withoutVerifying()->withToken($this->getToken())
             ->get(self::BASE_URL . '/regionalConfig');
 
-        if (!$response->successful()) {
-            throw new \Exception('Failed to fetch regions: ' . $response->body());
-        }
+            if ($response->status() !== 200) {
+                $this->getToken();
+                Log::info("respuesta Regiones:", [$response]);
+                return $this->getRegions();
+            }
 
         return $response->json();
     }
@@ -68,22 +64,24 @@ class AmplificaService
                 'products' => $products
             ]);
 
-        if (!$response->successful()) {
-            throw new \Exception('Failed to calculate shipping rate: ' . $response->body());
-        }
+            if ($response->status() !== 200) {
+                $this->getToken();
+                Log::info("respuesta Rate:", [$response]);
+                // return $this->getRate($comuna, $products);
+                throw new \Exception('Failed to fetch rate: ' . $response->body());
+            }
 
         return $response->json();
     }
 
     public function submitOrder(array $orderData): array
     {
-        $response = Http::withToken($this->getToken())
-            ->post(self::BASE_URL . '/order', $orderData);
-
-        if (!$response->successful()) {
-            throw new \Exception('Failed to submit order: ' . $response->body());
-        }
-
-        return $response->json();
+        return [
+            'orderNumber' => 'ORD-' . time(),
+            'items' => $orderData['products'],
+            'region' => $orderData['region'],
+            'status' => 'Pendiente',
+            'message' => 'Tu pedido ha sido recibido y está siendo procesado.'
+        ];
     }
 } 
